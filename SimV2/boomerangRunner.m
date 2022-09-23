@@ -1,0 +1,97 @@
+%function boomerangRunner
+
+%% Controllable Simulation Paramaters
+%Throwing in x-direction
+V0 = 12; %25; %initial speed magnitude(m/s)
+Z0 = 1.5; %(m)
+w0 = 12*2*pi; %15*2*pi; %(rad/s)
+
+thetaHor0 = 10*pi/180; %(rad)
+thetaLay0 = 20*pi/180; %(rad)
+alpha0 = 1*pi/180; %(rad)
+
+Vw = 0; % Wind Strength(m/s)
+WindAng = 80; % Angle of Wind Against Boomerang Throw(deg)
+
+dt = 1/10000; %(s)
+tmax = 5; %(s)
+%% New Simulation Object:
+S = newBoomerangSimulation(V0,Z0,w0,thetaHor0,thetaLay0,alpha0,Vw,WindAng,dt,tmax);
+
+%% Boomerang Parameters:
+R = .208; %length of blade (m)
+C = .04; %chord of blade (m)
+A = .0249; %3*R*C;  %area of boomn (m^2)
+l = .01; %Boomerang Thickness
+m = .09779; %mass (kg)
+rho = m/(A*l); %density (kg/m^3)
+Roffset = .01; %Distance from center of lift to axis of symettry of blade(m)
+I = 7e-04; % I33
+I = [.000739279,0,0;0,.000740591,0;0,0,.001479488];%[I/2,0,0;0,I/2,0;0,0,I]; %Inertia Tensor(kgm^2)
+n = 3; % 3 bladed boomerang
+% R = .208; %length of blade (m)
+% C = .04; %chord of blade (m)
+% A = .0249; %3*R*C;  %area of boomn (m^2)
+% l = .01; %Boomerang Thickness
+% m = .09779; %mass (kg)
+% rho = m/(A*l); %density (kg/m^3)
+% Roffset = .01; %Distance from center of lift to axis of symettry of blade(m)
+% I = 7e-04; % I33
+% I = [.000739279,0,0;0,.000740591,0;0,0,.001479488];%[I/2,0,0;0,I/2,0;0,0,I]; %Inertia Tensor(kgm^2)
+% n = 3; % 3 bladed boomerang
+% R = .13; %length of blade (m)
+% C = .04; %chord of blade (m)
+% A = 3*R*C;  %area of boomn (m^2)
+% l = .01; %Boomerang Thickness
+% m = .03; %mass (kg)
+% rho = m/(A*l); %density (kg/m^3)
+% Roffset = .01; %Distance from center of lift to axis of symettry of blade(m)
+% I = m*R^2/1.8; % I33
+% I = [I/2,0,0;0,I/2,0;0,0,I];%[I/2,0,0;0,I/2,0;0,0,I]; %Inertia Tensor(kgm^2)
+% n = 3; % 3 bladed boomerang
+
+%% Boomerang Airfoil:
+% Foil.CL0p = 0.39; 
+% Foil.CL0m = -0.39; 
+% Foil.CLap = 4.5; 
+% Foil.CLam = 4.5;
+% Foil.CD0p = 0.05; 
+% Foil.CD0m = 0.05;
+% Foil.CDap = 0.1;
+% Foil.CDam = 0.1;
+Foil.CL0p = 0.617; 
+Foil.CL0m = -0.617; 
+Foil.CLap = 5.3; 
+Foil.CLam = 5.3;
+Foil.CD0p = 0.01526; 
+Foil.CD0m = 0.01526;
+Foil.CDap = 0.1150;
+Foil.CDam = 0.1150;
+
+%% New Boomerang Object:
+B = boomerang(Foil,R,C,A,Roffset,l,m,rho,I,n);
+
+%% Run Simulation: 
+[t,boomState,flightParams] = boomerangTrajectory2(S,B);
+%[t2,boomState2,flightParams2] = boomerangTrajectorySimplified(S,B);
+%[t3,boomState3,flightParams3] = boomerangTrajectoryNewModel(S,B);
+%% Plot:
+%plotBoomSimNewModel(t3,dt,boomState3,flightParams3,B)
+f = plotBoomSim(t,dt,boomState,flightParams,B);
+%f = plotBoomSimSimplified(t2,dt,boomState2,flightParams2,B);
+%% Request Animation:
+animate = input('Animate Trajectory? Type yes or no: ','s');
+if isequal(animate,'yes')
+    boomerangTrajectoryAnimation(boomState,flightParams,t,dt);
+end
+
+%% Request User Save:
+%S.userSave(S,B,t,boomState,alpha,Mx,My,Mz,f);
+%save([cd '\SavedSims\' 'boom' '.mat'],'S','B','boomState')
+S.userSave(S,B,t,boomState,flightParams,f);
+
+%% Close figure
+%delete(f);
+
+
+%end
